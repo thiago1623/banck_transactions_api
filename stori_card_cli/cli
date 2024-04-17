@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "Usage: ./cli <filename.csv>"
+    exit 1
+fi
+
+csv_file=$1
+
+curl -X POST -F "file=@$csv_file" http://0.0.0.0:8080/api/v1/transactions/upload
