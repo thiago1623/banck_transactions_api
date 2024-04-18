@@ -4,9 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thiago1623/banck_transactions_api/config"
 	"github.com/thiago1623/banck_transactions_api/models"
-	"github.com/thiago1623/banck_transactions_api/repositories"
+	"github.com/thiago1623/banck_transactions_api/services"
 	"github.com/thiago1623/banck_transactions_api/utils"
-	"log"
 	"net/http"
 )
 
@@ -33,31 +32,34 @@ func (tc *TransactionController) ProcessCSV(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	// Guardar el archivo en el servidor
 	filePath := "uploads/" + file.Filename
 	if err := c.SaveUploadedFile(file, filePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar el archivo"})
 		return
 	}
-
-	// Parsear el archivo CSV
+	// Parse the file CSV
 	transactions, err := utils.ParseCSV(filePath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al procesar el archivo CSV"})
 		return
 	}
-
-	// Guardar las transacciones en la base de datos
-	db := config.DB
-	transactionRepo := repositories.NewTransactionRepository(db)
-	for _, transaction := range transactions {
-		if err := transactionRepo.SaveTransaction(&transaction); err != nil {
-			log.Println("Error al guardar la transacción:", err)
-			// Podrías manejar el error de alguna manera apropiada, como registrar, enviar una respuesta JSON, etc.
-		}
+	// save transactions inside database
+	services.SaveTransactions(c, transactions)
+	// generate the file CSV with the summary
+	filePath, err = utils.CreateSummaryCSV(transactions)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al generar el archivo CSV con el resumen"})
+		return
 	}
-
-	// Si todo salió bien, enviar una respuesta de éxito
-	c.JSON(http.StatusOK, gin.H{"message": "Transacciones procesadas exitosamente"})
+	// send email with the summary
+	emailService := services.NewEmailService()
+	cfg := config.LoadSettings()
+	serverSection := cfg.Section("Server")
+	err = emailService.SendEmailWithTemplate(serverSection.Key("RecipientEmail").String(), "Resumen de transacciones", "utils/emails/transactions_email.html", filePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error sending email"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Transactions processed successfully"})
 }

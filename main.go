@@ -6,7 +6,10 @@ import (
 )
 
 func main() {
-	config.ConnectDB()
+	err := config.ConnectDB()
+	if err != nil {
+		panic(err)
+	}
 	r := routes.SetupRouter()
 	r.Run(":8080")
 }
