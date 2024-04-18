@@ -23,3 +23,5 @@ tmp/
 go_build_*
 .idea/
 .air.toml
+*summary.csv
+summary.csv
