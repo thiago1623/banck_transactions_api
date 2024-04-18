@@ -25,3 +25,4 @@ go_build_*
 .air.toml
 *summary.csv
 summary.csv
+settings.ini
