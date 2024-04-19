@@ -12,11 +12,8 @@ help: ## display this help message
 build: ## build and install development environment requirements inside container
 	docker compose up --build
 
-test: clean ## run tests in the current virtualenv
-	docker exec -it back bash -c "cd test_from_stori_card/ && python manage.py test"
-
 migrate:
-	docker exec -it back bash -c "cd test_from_stori_card/ && python manage.py migrate"
+	docker exec -it back bash -c "go run migrate/migrate.go"
 
 run:
 	docker compose up
@@ -24,19 +21,8 @@ run:
 run-local:
 	 go run main.go
 
-run-local-air:
-	 air
-
-quality:
-	pylint --max-line-length=120 test_from_stori_card/transaction_management_api/api/
-	pylint --max-line-length=120 test_from_stori_card/transaction_management_api/utils/
-
 runCLI:
 	./stori_card_cli/cli stori_card_cli/transactions_info.csv
-
-qualityDocker:
-	docker exec -it back bash -c "pylint --max-line-length=120 test_from_stori_card/transaction_management_api/api/"
-	docker exec -it back bash -c "pylint --max-line-length=120 test_from_stori_card/transaction_management_api/utils/"
 
 selfcheck: ## check that the Makefile is well-formed
 	@echo "The Makefile is well-formed."

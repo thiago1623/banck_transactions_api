@@ -11,34 +11,29 @@ import (
 	"strings"
 )
 
-// EmailService proporciona métodos para enviar correos electrónicos.
+// EmailService provides methods for sending emails.
 type EmailService struct{}
 
-// NewEmailService crea una nueva instancia de EmailService.
+// NewEmailService creates a new EmailService instance.
 func NewEmailService() *EmailService {
 	return &EmailService{}
 }
 
+// SendEmailWithTemplate read the html template for the email
 func (es *EmailService) SendEmailWithTemplate(to, subject, templatePath, filePath string) error {
-	// Leer el contenido del archivo de plantilla HTML
 	templateContent, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return err
 	}
-
-	// Componer el mensaje utilizando la plantilla
 	message := string(templateContent)
-
-	// Enviar el correo electrónico
 	err = es.SendEmailWithAttachment(to, subject, message, filePath)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-// composeMessage compone el mensaje utilizando la plantilla HTML y los datos proporcionados.
+// composeMessage Composes the message using the HTML template and the data provided.
 func composeMessage(template string, data map[string]string) string {
 	for key, value := range data {
 		placeholder := "{{" + key + "}}"
@@ -47,22 +42,17 @@ func composeMessage(template string, data map[string]string) string {
 	return template
 }
 
-// SendEmailWithAttachment envía un correo electrónico con un archivo adjunto.
+// SendEmailWithAttachment Send an email with an attachment.
 func (es *EmailService) SendEmailWithAttachment(to, subject, body, filePath string) error {
 	cfg := config.LoadSettings()
 	serverSection := cfg.Section("Server")
-	// Abrir el archivo a adjuntar
 	file, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-
-	// Configurar el cliente SMTP
 	auth := smtp.PlainAuth("", serverSection.Key("SenderEmail").String(),
 		serverSection.Key("EmailPassword").String(), "smtp.gmail.com")
-
-	// Componer el mensaje
 	message := ""
 	headers := map[string]string{
 		"From":         serverSection.Key("SenderEmail").String(),
@@ -81,21 +71,16 @@ Content-Disposition: attachment; filename="%s"
 Content-Transfer-Encoding: base64
 `, filepath.Base(filePath))
 	message += "\r\n"
-
-	// Leer y codificar el contenido del archivo adjunto
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
 		return err
 	}
 	message += base64.StdEncoding.EncodeToString(content)
-
-	// Enviar el correo electrónico
 	err = smtp.SendMail("smtp.gmail.com:587",
 		auth, serverSection.Key("SenderEmail").String(),
 		[]string{to}, []byte(message))
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

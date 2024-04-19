@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: back
+        volumes:
+            - .:/app/
+        ports:
+            - "8080:8080"
+        depends_on:
+            - db
+        networks:
+            - backend
+
+    db:
+        image: postgres:12
+        container_name: db
+        environment:
+            - POSTGRES_DB=bankstoridb
+            - POSTGRES_USER=dbadminstori
+            - POSTGRES_PASSWORD=stori123456789
+        volumes:
+            - pg-data:/var/lib/postgresql/data/
+            - ./db:/docker-entrypoint-initdb.d/
+        ports:
+            - "5435:5432"
+        networks:
+            - backend
+
+volumes:
+    pg-data:
+        driver: local
+
+networks:
+    backend:
+        driver: bridge

@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// SetupRouter the router
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 

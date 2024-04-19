@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// SaveTransactions function that save all transactions inside database
 func SaveTransactions(c *gin.Context, transactions []models.Transaction) {
 	db := config.DB
 	transactionRepo := repositories.NewTransactionRepository(db)

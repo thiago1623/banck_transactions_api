@@ -6,8 +6,10 @@ import (
 	"gorm.io/gorm"
 )
 
+// DB global variable of database
 var DB *gorm.DB
 
+// ConnectDB this function config the database with postgres
 func ConnectDB() error {
 	cfg := LoadSettings()
 	dbSection := cfg.Section("Database")

@@ -10,25 +10,17 @@ import (
 	"time"
 )
 
-// ParseCSV lee el archivo CSV y devuelve una lista de transacciones.
+// ParseCSV reads the CSV file and returns a list of transactions.
 func ParseCSV(filePath string) ([]models.Transaction, error) {
-	// Abrir el archivo CSV
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
-
-	// Crear un lector CSV
 	reader := csv.NewReader(file)
-
-	// Variables para almacenar las transacciones procesadas
 	var transactions []models.Transaction
-
-	// Leer el archivo CSV línea por línea
 	firstRow := true
 	for {
-		// Leer una fila del archivo CSV
 		record, err := reader.Read()
 		if err == io.EOF {
 			break
@@ -37,43 +29,30 @@ func ParseCSV(filePath string) ([]models.Transaction, error) {
 			log.Println("Error al leer el archivo CSV:", err)
 			continue
 		}
-
-		// Ignorar la primera fila si contiene la cadena "date"
 		if firstRow && record[0] == "date" {
 			firstRow = false
 			continue
 		}
-
-		// Convertir los campos del registro en una transacción
 		transaction, err := parseRecordToTransaction(record)
 		if err != nil {
-			log.Println("Error al analizar el registro del archivo CSV:", err)
+			log.Println("Error parsing CSV file log:", err)
 			continue
 		}
-
-		// Agregar la transacción a la lista
 		transactions = append(transactions, transaction)
 	}
-
 	return transactions, nil
 }
 
-// parseRecordToTransaction convierte un registro CSV en una transacción.
+// parseRecordToTransaction converts a CSV record to a transaction.
 func parseRecordToTransaction(record []string) (models.Transaction, error) {
 	var transaction models.Transaction
-
-	// Verificar si la fecha es igual a "date" y omitirla
 	if record[1] == "date" {
 		return transaction, nil
 	}
-
-	// Parsear la fecha
 	date, err := time.Parse("1/2/2006", record[1]) // Formato: mes/día/año
 	if err != nil {
 		return transaction, err
 	}
-
-	// Parsear la cantidad de la transacción
 	amount, err := strconv.ParseFloat(record[2], 64)
 	if err != nil {
 		return transaction, err
@@ -87,8 +66,7 @@ func parseRecordToTransaction(record []string) (models.Transaction, error) {
 	return transaction, nil
 }
 
-// CreateSummaryCSV crea un archivo CSV con los datos necesarios para generar el resumen.
-// Retorna el path del archivo CSV creado.
+// CreateSummaryCSV creates a CSV file with the data necessary to generate the summary.
 func CreateSummaryCSV(transactions []models.Transaction) (string, error) {
 	// Crear el archivo CSV
 	filePath := "summary.csv"
@@ -138,7 +116,7 @@ func CreateSummaryCSV(transactions []models.Transaction) (string, error) {
 	return filePath, nil
 }
 
-// calculateAverages calcula el promedio de débito y crédito para una lista de transacciones.
+// calculateAverages calculates the average debit and credit for a list of transactions.
 func calculateAverages(transactions []models.Transaction) (float64, float64) {
 	totalDebit := 0.0
 	totalCredit := 0.0
