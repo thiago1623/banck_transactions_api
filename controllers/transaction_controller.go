@@ -25,18 +25,18 @@ func (tc *TransactionController) ProcessCSV(c *gin.Context) {
 	}
 	filePath := "uploads/" + file.Filename
 	if err := c.SaveUploadedFile(file, filePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar el archivo"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "save file error"})
 		return
 	}
 	transactions, err := utils.ParseCSV(filePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al procesar el archivo CSV"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error to process csv file"})
 		return
 	}
 	services.SaveTransactions(c, transactions)
 	filePath, err = utils.CreateSummaryCSV(transactions)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al generar el archivo CSV con el resumen"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating CSV file with summary"})
 		return
 	}
 	emailService := services.NewEmailService()
