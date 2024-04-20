@@ -26,7 +26,7 @@ func ParseCSV(filePath string) ([]models.Transaction, error) {
 			break
 		}
 		if err != nil {
-			log.Println("Error al leer el archivo CSV:", err)
+			log.Println("Error reading CSV file:", err)
 			continue
 		}
 		if firstRow && record[0] == "date" {
@@ -49,7 +49,7 @@ func parseRecordToTransaction(record []string) (models.Transaction, error) {
 	if record[1] == "date" {
 		return transaction, nil
 	}
-	date, err := time.Parse("1/2/2006", record[1]) // Formato: mes/día/año
+	date, err := time.Parse("1/2/2006", record[1])
 	if err != nil {
 		return transaction, err
 	}
@@ -68,25 +68,18 @@ func parseRecordToTransaction(record []string) (models.Transaction, error) {
 
 // CreateSummaryCSV creates a CSV file with the data necessary to generate the summary.
 func CreateSummaryCSV(transactions []models.Transaction) (string, error) {
-	// Crear el archivo CSV
 	filePath := "summary.csv"
 	file, err := os.Create(filePath)
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
-
-	// Crear un escritor CSV
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
-
-	// Escribir la cabecera del CSV
 	header := []string{"Total balance", "Month", "Number of transactions", "Average debit", "Average credit"}
 	if err := writer.Write(header); err != nil {
 		return "", err
 	}
-
-	// Calcular el total balance, número de transacciones, promedio de débito y promedio de crédito
 	totalBalance := 0.0
 	transactionsByMonth := make(map[string][]models.Transaction)
 	for _, transaction := range transactions {
@@ -94,8 +87,6 @@ func CreateSummaryCSV(transactions []models.Transaction) (string, error) {
 		month := transaction.Date.Format("January")
 		transactionsByMonth[month] = append(transactionsByMonth[month], transaction)
 	}
-
-	// Escribir los datos en el CSV
 	isFirstRow := true
 	for month, transactions := range transactionsByMonth {
 		numTransactions := len(transactions)
