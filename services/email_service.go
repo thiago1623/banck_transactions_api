@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/thiago1623/banck_transactions_api/config"
 	"io/ioutil"
+	"log"
 	"net/smtp"
 	"os"
 	"path/filepath"
@@ -19,12 +20,35 @@ func NewEmailService() *EmailService {
 	return &EmailService{}
 }
 
+func UploadFileInS3(filePath string) error {
+	cfg := config.LoadSettings()
+	awsSection := cfg.Section("AWS")
+	accessKeyID := awsSection.Key("aws_access_key_id").String()
+	secretAccessKey := awsSection.Key("aws_secret_access_key").String()
+	awsSvc, err := NewAWSService(accessKeyID, secretAccessKey)
+	if err != nil {
+		return fmt.Errorf("Error creating AWS service: %v", err)
+	}
+	bucketName := awsSection.Key("BucketName").String()
+	bucketKey := awsSection.Key("BucketKey").String()
+	err = awsSvc.UploadFile(bucketName, bucketKey, filePath)
+	if err != nil {
+		return fmt.Errorf("Error uploading file: %v", err)
+	}
+	return nil
+}
+
 // SendEmailWithTemplate read the html template for the email
 func (es *EmailService) SendEmailWithTemplate(to, subject, templatePath, filePath string) error {
 	templateContent, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return err
 	}
+	msg := UploadFileInS3(filePath)
+	if msg != nil {
+		return fmt.Errorf("%v", msg)
+	}
+	log.Printf("File uploaded successfully")
 	message := string(templateContent)
 	err = es.SendEmailWithAttachment(to, subject, message, filePath)
 	if err != nil {
