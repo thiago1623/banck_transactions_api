@@ -12,9 +12,6 @@ help: ## display this help message
 build: ## build and install development environment requirements inside container
 	docker compose up --build
 
-migrate:
-	docker exec -it back bash -c "go run migrate/migrate.go"
-
 run:
 	docker compose up
 
@@ -23,6 +20,9 @@ run-local:
 
 runCLI:
 	./stori_card_cli/cli stori_card_cli/transactions_info.csv
+
+migrateTables:
+	docker exec -it back bash -c "go run migrate/migrate.go"
 
 selfcheck: ## check that the Makefile is well-formed
 	@echo "The Makefile is well-formed."

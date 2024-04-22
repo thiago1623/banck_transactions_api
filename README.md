@@ -1,5 +1,7 @@
 # Challenge Stack
 This application is a sample REST API for the challenge of handling transactions using a.csv file.
+This REST API send the summary information about all transactions of this file, and save this file in bucket s3 of aws
+
 
 # Methodologies that were used
 
@@ -34,7 +36,7 @@ Once you finish installing the entire container and can access the url, open ano
 
 A detailed step-by-step description is:
 ```
-make migrate
+make migrateTables
 ```
 This will generate migrations for your database.
 
@@ -42,11 +44,11 @@ This will generate migrations for your database.
 
 And finally you can test the API by running the following command
 
+open other terminal and run the CLI command
+
 ```
 make runCLI
 ```
-
-* Remember that you must have created the user in the previous step, since the API will ask you to be an authenticated user
 
 ---
 
