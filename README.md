@@ -14,8 +14,9 @@ SOLID principles were used, specifically the SRP, OCP and ISP principles
 
 So that you can quickly run through the challenge, some bootstrap scripts have been created to make things easier.
 
-but first, download the file called settings.ini and add it inside config folder for example config/settings.ini
-file link: https://drive.google.com/drive/folders/1zdvVH7UC0t3Pw9vWksTiQ6a0d8ft8n6j?usp=sharing
+but first, download the file called settings.ini and add it inside config folder for example it has to look like this: config/settings.ini
+
+file link: https://drive.google.com/drive/folders/1F1kX3gSHTzyg3pBN3qH_HmldLzyk6j-Y?usp=sharing
 
 > change the sender_email, recipient_email and email_password settings to your own settings so you can validate if you received the email.
 
